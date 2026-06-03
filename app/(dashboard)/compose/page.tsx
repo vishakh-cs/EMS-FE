@@ -186,7 +186,7 @@ export default function ComposePage() {
       {/* Compose Pane */}
       <section className="flex-1 flex flex-col overflow-hidden bg-white/5 rounded-2xl border border-white/10">
         {/* Top bar */}
-        <div className="flex items-center justify-between px-6 py-3 border-b border-white/10 bg-white/5 py-5">
+        <div className="flex items-center justify-between px-6 py-3 border-b border-white/10 bg-white/5">
           <h2 className="text-xl font-bold text-on-surface">Compose Email</h2>
           <div className="flex items-center gap-2">
             <button
