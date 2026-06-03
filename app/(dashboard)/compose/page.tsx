@@ -195,9 +195,9 @@ function ComposeContent() {
   };
 
   return (
-    <div className="flex flex-col xl:flex-row gap-5 h-[calc(100vh-112px)] -mx-4 sm:-mx-6 -mt-4 sm:-mt-6 overflow-hidden">
+    <div className="flex flex-col xl:flex-row gap-5 h-auto xl:h-[calc(100vh-112px)] -mx-4 sm:-mx-6 -mt-4 sm:-mt-6 overflow-visible xl:overflow-hidden">
       {/* Compose Pane */}
-      <section className="flex-1 flex flex-col overflow-hidden bg-white/5 rounded-2xl border border-white/10">
+      <section className="flex-1 flex flex-col overflow-visible xl:overflow-hidden bg-white/5 rounded-2xl border border-white/10">
         {/* Top bar */}
         <div className="flex items-center justify-between px-6 py-3 border-b border-white/10 bg-white/5">
           <h2 className="text-xl font-bold text-on-surface">Compose Email</h2>
@@ -339,7 +339,7 @@ function ComposeContent() {
         </div>
 
         {/* Toolbar */}
-        <div className="px-6 py-2 bg-white/5 flex items-center gap-1 border-b border-white/10">
+        <div className="px-6 py-2 bg-white/5 flex flex-wrap items-center gap-1 border-b border-white/10">
           {[
             { icon: "format_bold", title: "Bold" },
             { icon: "format_italic", title: "Italic" },
@@ -367,13 +367,13 @@ function ComposeContent() {
         </div>
 
         {/* Body */}
-        <div className="flex-1 overflow-y-auto p-6 bg-white/5">
+        <div className="flex-1 overflow-visible xl:overflow-y-auto p-6 bg-white/5">
           <textarea
             required
             disabled={sending}
             value={body}
             onChange={(e) => setBody(e.target.value)}
-            className="glass-input w-full h-full min-h-[450px] resize-none rounded-xl p-4 text-sm font-mono leading-relaxed text-on-surface/90"
+            className="glass-input w-full h-[400px] xl:h-full min-h-[300px] resize-y xl:resize-none rounded-xl p-4 text-sm font-mono leading-relaxed text-on-surface/90"
           />
         </div>
 
