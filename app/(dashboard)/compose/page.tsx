@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from "react";
-import { postApi, smtp } from "@/app/services";
+import React, { useState, Fragment } from "react";
+import { postApi, getApi, smtp } from "@/app/services";
 
 const templates = [
   "Standard Application Follow-up",
@@ -70,6 +70,24 @@ export default function ComposePage() {
   const [showPreview, setShowPreview] = useState(false);
   const [attachedFile, setAttachedFile] = useState<File | null>(null);
   const [attachByDefault, setAttachByDefault] = useState(true);
+
+  // Mail History status
+  const [showHistory, setShowHistory] = useState(false);
+  const [historyItems, setHistoryItems] = useState<any[]>([]);
+  const [loadingHistory, setLoadingHistory] = useState(false);
+  const [expandedHistoryRow, setExpandedHistoryRow] = useState<string | null>(null);
+
+  const fetchHistory = async () => {
+    setLoadingHistory(true);
+    try {
+      const response = await getApi(smtp.mailHistory);
+      setHistoryItems(response?.data?.data || response?.data || []);
+    } catch (err) {
+      console.error("Failed to fetch mail history", err);
+    } finally {
+      setLoadingHistory(false);
+    }
+  };
 
   const fileToBase64 = (file: File): Promise<string> => {
     return new Promise((resolve, reject) => {
@@ -171,7 +189,18 @@ export default function ComposePage() {
         <div className="flex items-center justify-between px-6 py-3 border-b border-white/10 bg-white/5">
           <h2 className="text-xl font-bold text-on-surface">Compose Email</h2>
           <div className="flex items-center gap-2">
-            <button className="flex items-center gap-1 px-3 py-1.5 text-xs font-bold text-primary hover:bg-primary/10 rounded-xl transition-colors">
+            <button
+              type="button"
+              onClick={() => {
+                setShowHistory(true);
+                fetchHistory();
+              }}
+              className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold text-primary hover:bg-primary/10 rounded-xl transition-colors"
+            >
+              <span className="material-symbols-outlined text-[18px]">history</span>
+              Mail History
+            </button>
+            <button type="button" className="flex items-center gap-1 px-3 py-1.5 text-xs font-bold text-primary hover:bg-primary/10 rounded-xl transition-colors">
               <span className="material-symbols-outlined text-[18px]">auto_fix</span>
               AI Rewrite
             </button>
@@ -518,6 +547,120 @@ export default function ComposePage() {
               >
                 <span className="material-symbols-outlined text-[18px]">send</span>
                 <span>Send Now</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Premium Glassmorphic Email History Modal Overlay */}
+      {showHistory && (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[100] flex items-center justify-center p-4">
+          <div className="glass-panel w-full max-w-4xl rounded-2xl overflow-hidden border border-white/15 shadow-2xl flex flex-col max-h-[85vh] animate-slide-in">
+            {/* Modal Header */}
+            <div className="flex items-center justify-between px-6 py-4 border-b border-white/10 bg-white/5">
+              <h3 className="text-lg font-bold text-on-surface flex items-center gap-2">
+                <span className="material-symbols-outlined text-primary">history</span>
+                Outreach History
+              </h3>
+              <button
+                onClick={() => setShowHistory(false)}
+                className="p-1.5 hover:bg-white/10 rounded-xl text-secondary hover:text-on-surface transition-colors"
+              >
+                <span className="material-symbols-outlined">close</span>
+              </button>
+            </div>
+
+            {/* Modal Content */}
+            <div className="p-6 overflow-y-auto space-y-4 flex-1">
+              {loadingHistory ? (
+                <div className="flex flex-col items-center justify-center py-12 gap-3">
+                  <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-primary border-r-2 border-r-transparent"></div>
+                  <span className="text-xs text-on-surface-variant/70">Fetching history...</span>
+                </div>
+              ) : historyItems.length === 0 ? (
+                <div className="text-center py-12 text-on-surface-variant/50 italic text-sm">
+                  No sent history found. Start sending emails to build your logs.
+                </div>
+              ) : (
+                <div className="glass-panel rounded-xl overflow-hidden border border-white/5">
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-left border-collapse">
+                      <thead>
+                        <tr className="bg-white/5 border-b border-white/10">
+                          <th className="px-4 py-3 text-[10px] font-bold text-on-surface-variant/60 uppercase tracking-widest">Recipient</th>
+                          <th className="px-4 py-3 text-[10px] font-bold text-on-surface-variant/60 uppercase tracking-widest">Subject</th>
+                          <th className="px-4 py-3 text-[10px] font-bold text-on-surface-variant/60 uppercase tracking-widest">Status</th>
+                          <th className="px-4 py-3 text-[10px] font-bold text-on-surface-variant/60 uppercase tracking-widest">Date</th>
+                          <th className="px-4 py-3 text-[10px] font-bold text-on-surface-variant/60 uppercase tracking-widest text-right">Actions</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-white/5">
+                        {historyItems.map((item) => (
+                          <Fragment key={item._id}>
+                            <tr className="hover:bg-white/5 transition-colors">
+                              <td className="px-4 py-3 text-sm font-medium text-on-surface truncate max-w-[150px]">{item.to}</td>
+                              <td className="px-4 py-3 text-sm text-on-surface-variant/80 truncate max-w-[200px]">{item.subject}</td>
+                              <td className="px-4 py-3">
+                                <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-bold ${
+                                  item.status === 'Success' ? 'bg-tertiary/10 text-tertiary border border-tertiary/20' : 'bg-error/10 text-error border border-error/20'
+                                }`}>
+                                  {item.status}
+                                </span>
+                              </td>
+                              <td className="px-4 py-3 text-xs text-on-surface-variant/70">
+                                {new Date(item.createdAt).toLocaleString(undefined, {
+                                  dateStyle: 'medium',
+                                  timeStyle: 'short',
+                                })}
+                              </td>
+                              <td className="px-4 py-3 text-right space-x-2">
+                                {item.status === "Failed" && item.errorLog && (
+                                  <button
+                                    onClick={() => setExpandedHistoryRow(expandedHistoryRow === item._id ? null : item._id)}
+                                    className="px-2 py-1 text-xs hover:bg-error/10 text-error rounded transition-colors"
+                                  >
+                                    Error Details
+                                  </button>
+                                )}
+                                <button
+                                  onClick={() => {
+                                    setTo(item.to);
+                                    setSubject(item.subject);
+                                    setBody(item.mail_content);
+                                    setShowHistory(false);
+                                  }}
+                                  className="px-2.5 py-1 text-xs bg-primary/10 hover:bg-primary/20 text-primary rounded transition-all font-semibold"
+                                >
+                                  Reuse Template
+                                </button>
+                              </td>
+                            </tr>
+                            {expandedHistoryRow === item._id && item.errorLog && (
+                              <tr className="bg-error/[0.02]">
+                                <td colSpan={5} className="px-4 py-3">
+                                  <div className="bg-black/40 p-3 rounded-lg border border-error/20 text-xs font-mono text-error/90 max-h-[150px] overflow-y-auto">
+                                    {item.errorLog}
+                                  </div>
+                                </td>
+                              </tr>
+                            )}
+                          </Fragment>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Modal Footer */}
+            <div className="px-6 py-4 border-t border-white/10 bg-white/5 flex justify-end">
+              <button
+                onClick={() => setShowHistory(false)}
+                className="px-5 py-2 glass-card text-on-surface text-sm font-medium rounded-xl hover:bg-white/10 transition-all"
+              >
+                Close History
               </button>
             </div>
           </div>
