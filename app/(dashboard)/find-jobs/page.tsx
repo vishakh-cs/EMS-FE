@@ -19,6 +19,7 @@ interface JobFinding {
   postedDate?: string | Date;
   searchKeywords?: string[];
   createdAt?: string | Date;
+  isApplied?: boolean;
 }
 
 export default function FindJobsPage() {
@@ -139,24 +140,7 @@ export default function FindJobsPage() {
   };
 
   const getJobEmail = (job: JobFinding): string => {
-    if (job.email) {
-      return job.email;
-    }
-    if (job.description) {
-      const emailMatch = job.description.match(/[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/);
-      if (emailMatch) {
-        return emailMatch[0];
-      }
-    }
-    if (job.companyName) {
-      const cleanCompany = job.companyName
-        .toLowerCase()
-        .replace(/[^a-z0-9]/g, "");
-      if (cleanCompany) {
-        return `hr@${cleanCompany}.com`;
-      }
-    }
-    return "recruiter@company.com";
+    return job.email || "";
   };
 
   // Pre-fill email outreach
@@ -179,6 +163,9 @@ Vishakh CS`;
     searchParams.set("to", jobEmail);
     searchParams.set("subject", defaultSubject);
     searchParams.set("body", defaultBody);
+    if (job._id || job.id) {
+      searchParams.set("jobFindingId", job._id || job.id || "");
+    }
     
     router.push(`/compose?${searchParams.toString()}`);
   };
@@ -494,15 +481,25 @@ Vishakh CS`;
                     </span>
 
                     <div className="flex gap-2 shrink-0">
-                      {/* Apply Now button redirecting to compose outreach */}
-                      <button
-                        onClick={() => handleDraftOutreach(job)}
-                        className="px-3.5 py-1.5 bg-primary text-on-primary text-xs font-bold rounded-lg hover:brightness-110 transition-all flex items-center gap-1.5 cursor-pointer shadow-lg shadow-primary/10"
-                        title="Apply via email outreach"
-                      >
-                        <span className="material-symbols-outlined text-[15px]">send</span>
-                        Apply Now
-                      </button>
+                      {/* Show Applied badge if already applied */}
+                      {job.isApplied ? (
+                        <span className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-bold bg-tertiary/10 text-tertiary border border-tertiary/20 select-none">
+                          <span className="material-symbols-outlined text-[14px]">check_circle</span>
+                          Applied
+                        </span>
+                      ) : (
+                        /* Only show Apply Now button if job.email exists */
+                        job.email && (
+                          <button
+                            onClick={() => handleDraftOutreach(job)}
+                            className="px-3.5 py-1.5 bg-primary text-on-primary text-xs font-bold rounded-lg hover:brightness-110 transition-all flex items-center gap-1.5 cursor-pointer shadow-lg shadow-primary/10"
+                            title="Apply via email outreach"
+                          >
+                            <span className="material-symbols-outlined text-[15px]">send</span>
+                            Apply Now
+                          </button>
+                        )
+                      )}
 
                       {/* View Original link if applyUrl exists */}
                       {job.applyUrl && (

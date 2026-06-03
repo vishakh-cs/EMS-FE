@@ -2,7 +2,7 @@
 
 import React, { useState, Fragment, useEffect, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
-import { postApi, getApi, smtp } from "@/app/services";
+import { postApi, getApi, patchApi, smtp } from "@/app/services";
 
 const templates = [
   "Standard Application Follow-up",
@@ -64,16 +64,20 @@ function ComposeContent() {
   const [subject, setSubject] = useState("");
   const [body, setBody] = useState(templateContents["Standard Application Follow-up"]);
 
+  const [jobFindingId, setJobFindingId] = useState<string | null>(null);
+
   const searchParams = useSearchParams();
 
   useEffect(() => {
     const toParam = searchParams.get("to");
     const subjectParam = searchParams.get("subject");
     const bodyParam = searchParams.get("body");
+    const jobFindingIdParam = searchParams.get("jobFindingId");
 
     if (toParam) setTo(toParam);
     if (subjectParam) setSubject(subjectParam);
     if (bodyParam) setBody(bodyParam);
+    if (jobFindingIdParam) setJobFindingId(jobFindingIdParam);
   }, [searchParams]);
 
   // Sending email status
@@ -175,6 +179,14 @@ function ComposeContent() {
 
       await postApi(smtp.sendEmail, payload);
       setSuccess(true);
+
+      if (jobFindingId) {
+        try {
+          await patchApi(smtp.toggleApplied(jobFindingId), { isApplied: true });
+        } catch (patchErr) {
+          console.error("Failed to automatically mark job as applied:", patchErr);
+        }
+      }
 
       // Clear form
       setTo("");
