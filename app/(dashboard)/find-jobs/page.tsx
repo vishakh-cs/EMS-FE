@@ -9,6 +9,7 @@ interface JobFinding {
   id?: string;
   jobTitle: string;
   companyName?: string;
+  email?: string;
   location?: string;
   jobType?: string;
   experienceRequired?: string;
@@ -138,6 +139,9 @@ export default function FindJobsPage() {
   };
 
   const getJobEmail = (job: JobFinding): string => {
+    if (job.email) {
+      return job.email;
+    }
     if (job.description) {
       const emailMatch = job.description.match(/[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/);
       if (emailMatch) {
@@ -411,13 +415,19 @@ Vishakh CS`;
                       <div className="w-10 h-10 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center text-primary font-bold text-md shrink-0">
                         {job.companyName ? job.companyName[0].toUpperCase() : "J"}
                       </div>
-                      <div className="min-w-0">
+                      <div className="min-w-0 flex-1">
                         <h4 className="text-sm font-bold text-on-surface leading-snug truncate" title={job.jobTitle}>
                           {job.jobTitle}
                         </h4>
                         <p className="text-xs text-secondary/80 truncate">
                           {job.companyName || "Unknown Company"}
                         </p>
+                        {job.email && (
+                          <div className="text-[10px] text-primary/80 flex items-center gap-1 mt-1 font-mono truncate" title={job.email}>
+                            <span className="material-symbols-outlined text-[12px]">mail</span>
+                            {job.email}
+                          </div>
+                        )}
                       </div>
                     </div>
 
