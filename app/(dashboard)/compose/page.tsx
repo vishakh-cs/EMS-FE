@@ -1,6 +1,7 @@
 "use client";
 
-import React, { useState, Fragment } from "react";
+import React, { useState, Fragment, useEffect, Suspense } from "react";
+import { useSearchParams } from "next/navigation";
 import { postApi, getApi, smtp } from "@/app/services";
 
 const templates = [
@@ -54,7 +55,7 @@ const variables = {
   Industry: ["{{industry_niche}}", "{{skill_1}}"],
 };
 
-export default function ComposePage() {
+function ComposeContent() {
   const [showCcBcc, setShowCcBcc] = useState(false);
   const [selectedTemplate, setSelectedTemplate] = useState("Standard Application Follow-up");
   const [to, setTo] = useState("");
@@ -62,6 +63,18 @@ export default function ComposePage() {
   const [bcc, setBcc] = useState("");
   const [subject, setSubject] = useState("");
   const [body, setBody] = useState(templateContents["Standard Application Follow-up"]);
+
+  const searchParams = useSearchParams();
+
+  useEffect(() => {
+    const toParam = searchParams.get("to");
+    const subjectParam = searchParams.get("subject");
+    const bodyParam = searchParams.get("body");
+
+    if (toParam) setTo(toParam);
+    if (subjectParam) setSubject(subjectParam);
+    if (bodyParam) setBody(bodyParam);
+  }, [searchParams]);
 
   // Sending email status
   const [sending, setSending] = useState(false);
@@ -667,5 +680,20 @@ export default function ComposePage() {
         </div>
       )}
     </div>
+  );
+}
+
+export default function ComposePage() {
+  return (
+    <Suspense fallback={
+      <div className="flex h-[calc(100vh-112px)] items-center justify-center bg-[#0b1326] rounded-2xl border border-white/10">
+        <div className="flex flex-col items-center gap-3">
+          <div className="animate-spin rounded-full h-10 w-10 border-t-2 border-primary border-r-2 border-r-transparent"></div>
+          <span className="text-xs font-medium text-on-surface-variant/70 tracking-wider">Loading composer...</span>
+        </div>
+      </div>
+    }>
+      <ComposeContent />
+    </Suspense>
   );
 }

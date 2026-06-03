@@ -6,6 +6,7 @@ import { usePathname } from "next/navigation";
 const navItems = [
   { href: "/dashboard",  icon: "dashboard",               label: "Dashboard" },
   { href: "/compose",    icon: "send",                    label: "Email Sender" },
+  { href: "/find-jobs",  icon: "travel_explore",          label: "Find Jobs" },
   { href: "/campaigns",  icon: "campaign",                label: "Bulk Campaign" },
   { href: "/smtp",       icon: "settings_input_component",label: "SMTP Settings" },
   { href: "/resumes",    icon: "description",             label: "Resume Management" },
