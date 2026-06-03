@@ -30,11 +30,13 @@ export default function LoginForm() {
         remember,
       });
 
-      // Save authorization token in sessionStorage if it exists in the response
-      if (response?.data?.token) {
-        sessionStorage.setItem("token", response.data.token);
-      } else if (response?.data?.data?.token) {
-        sessionStorage.setItem("token", response.data.data.token);
+      // Save user details and token in sessionStorage
+      const userData = response?.data?.data || response?.data;
+      if (userData) {
+        if (userData.token) sessionStorage.setItem("token", userData.token);
+        if (userData.firstName) sessionStorage.setItem("firstName", userData.firstName);
+        if (userData.lastName) sessionStorage.setItem("lastName", userData.lastName);
+        if (userData.designation) sessionStorage.setItem("designation", userData.designation);
       }
 
       // Successful login -> route to dashboard

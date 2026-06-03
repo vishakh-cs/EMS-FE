@@ -10,6 +10,16 @@ const templates = [
   "Post-Interview Thank You",
 ];
 
+const subjectOptions = [
+  "Application for MERN Stack Developer Position",
+  "Application for Full Stack Developer Position",
+  "Application for Software Engineer Position",
+  "Application for React Developer Position",
+  "Application for Node.js Developer Position",
+  "Application for Frontend Developer Position",
+  "Application for Backend Developer Position",
+];
+
 const templateContents: Record<string, string> = {
   "Standard Application Follow-up": `Dear Hiring Manager,
 
@@ -74,14 +84,24 @@ export default function ComposePage() {
   };
 
   const parsePreview = (text: string) => {
+    let userName = "Alex Rivera";
+    if (typeof window !== "undefined") {
+      const fName = sessionStorage.getItem("firstName");
+      const lName = sessionStorage.getItem("lastName");
+      if (fName) {
+        userName = `${fName} ${lName || ""}`.trim();
+      }
+    }
+    const cleanUserName = userName.toLowerCase().replace(/[^a-z0-9]/g, "");
+
     return text
       .replace(/\{\{hiring_manager\}\}/g, "John Doe")
       .replace(/\{\{position\}\}/g, "Senior Software Engineer")
       .replace(/\{\{company\}\}/g, "TechCorp Solutions")
       .replace(/\{\{industry_niche\}\}/g, "Artificial Intelligence")
       .replace(/\{\{skill_1\}\}/g, "React & Next.js")
-      .replace(/\{\{name\}\}/g, "Alex Rivera")
-      .replace(/\{\{linkedin_url\}\}/g, "linkedin.com/in/alexrivera");
+      .replace(/\{\{name\}\}/g, userName)
+      .replace(/\{\{linkedin_url\}\}/g, `linkedin.com/in/${cleanUserName}`);
   };
 
   const handleTemplateChange = (val: string) => {
@@ -227,17 +247,32 @@ export default function ComposePage() {
           )}
 
           {/* Subject */}
-          <div className="flex items-center gap-4">
+          <div className="flex flex-col sm:flex-row gap-4 sm:items-center">
             <span className="w-16 text-sm font-medium text-on-surface-variant/70 shrink-0">Subject</span>
-            <input
-              type="text"
-              required
-              disabled={sending}
-              value={subject}
-              onChange={(e) => setSubject(e.target.value)}
-              placeholder="Enter email subject line…"
-              className="glass-input flex-1 px-4 py-2.5 rounded-xl text-sm font-medium"
-            />
+            <div className="flex-1 flex gap-3 w-full">
+              <input
+                type="text"
+                required
+                disabled={sending}
+                value={subject}
+                onChange={(e) => setSubject(e.target.value)}
+                placeholder="Enter email subject line…"
+                className="glass-input flex-1 px-4 py-2.5 rounded-xl text-sm font-medium"
+              />
+              <select
+                disabled={sending}
+                onChange={(e) => setSubject(e.target.value)}
+                className="glass-input px-3 py-2.5 rounded-xl text-sm max-w-[200px] cursor-pointer"
+                value={subjectOptions.includes(subject) ? subject : ""}
+              >
+                <option value="" disabled>Quick Subjects</option>
+                {subjectOptions.map((opt) => (
+                  <option key={opt} value={opt} className="bg-surface-container">
+                    {opt}
+                  </option>
+                ))}
+              </select>
+            </div>
           </div>
 
           {/* Template */}

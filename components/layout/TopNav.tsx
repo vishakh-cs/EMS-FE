@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 
 const pageTitles: Record<string, string> = {
@@ -19,6 +20,29 @@ interface TopNavProps {
 export default function TopNav({ onToggleSidebar }: TopNavProps) {
   const pathname = usePathname();
   const title = pageTitles[pathname] ?? "ResumeMail AI";
+
+  const [name, setName] = useState("Alex Rivera");
+  const [designation, setDesignation] = useState("Recruitment Lead");
+  const [initials, setInitials] = useState("AR");
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const fName = sessionStorage.getItem("firstName") || "";
+      const lName = sessionStorage.getItem("lastName") || "";
+      const des = sessionStorage.getItem("designation") || "";
+      
+      if (fName) {
+        const fullName = `${fName} ${lName}`.trim();
+        setName(fullName);
+        
+        const init = (fName[0] + (lName[0] || "")).toUpperCase();
+        setInitials(init);
+      }
+      if (des) {
+        setDesignation(des);
+      }
+    }
+  }, []);
 
   return (
     <header className="glass-header sticky top-0 z-40 shrink-0">
@@ -65,11 +89,11 @@ export default function TopNav({ onToggleSidebar }: TopNavProps) {
           {/* Avatar */}
           <div className="flex items-center gap-2 sm:gap-3 cursor-pointer group">
             <div className="text-right hidden md:block">
-              <p className="text-xs sm:text-sm font-bold text-on-surface leading-tight">Alex Rivera</p>
-              <p className="text-[10px] sm:text-[11px] text-secondary/70">Recruitment Lead</p>
+              <p className="text-xs sm:text-sm font-bold text-on-surface leading-tight">{name}</p>
+              <p className="text-[10px] sm:text-[11px] text-secondary/70">{designation}</p>
             </div>
             <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-primary/30 border-2 border-primary/20 group-hover:border-primary transition-colors flex items-center justify-center text-primary font-bold text-xs sm:text-sm">
-              AR
+              {initials}
             </div>
           </div>
         </div>
