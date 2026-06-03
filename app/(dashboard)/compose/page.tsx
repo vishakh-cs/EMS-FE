@@ -32,7 +32,7 @@ Best regards,
 Vishakh CS
 Software Developer
 
-Email: [vishakhcs51@gmail.com](mailto:vishakhcs51@gmail.com)
+Email: vishakhcs51@gmail.com
 LinkedIn: linkedin.com/in/vishakh-cs
 GitHub: github.com/vishakh-cs
 Portfolio: https://portfolio-2026-v2m4.vercel.app`
