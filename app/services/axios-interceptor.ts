@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { toastService } from './toast.service';
 
-const BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api/';
+const BASE_URL = '/api/';
 
 export const axiosInstance = axios.create({
   baseURL: BASE_URL,
